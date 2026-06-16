@@ -79,6 +79,7 @@ POST /api/send
     "receiver_id": 2,
     "amount": 500
 }
+
 ## Things I learned building this
 
 **Docker networking** — containers are isolated by default. Putting them on the same network lets them find each other by service name through Docker's built-in DNS. IP addresses change on restart, names don't.

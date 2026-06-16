@@ -119,5 +119,4 @@ Health checks with dependency ordering (depends_on + condition: service_healthy)
 Named volumes for persistent database storage
 Reverse proxy pattern with Nginx
 Cache-aside pattern with Redis
-Environment variable-based configuration (12-Factor App)
-Automatic database initialization via docker-entrypoint-initdb.d
+

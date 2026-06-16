@@ -71,15 +71,6 @@ GET  /api/transactions/:id     → transaction history for a user
 GET  /api/health               → health check
 ```
 
-Send money example:
-```json
-POST /api/send
-{
-    "sender_id": 1,
-    "receiver_id": 2,
-    "amount": 500
-}
-
 Things I Learned Building This
 
 Docker networking — containers are isolated by default. Putting them on the same network lets them find each other by service name through Docker's built-in DNS. IP addresses change on restart, names don't.

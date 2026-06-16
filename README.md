@@ -165,27 +165,32 @@ kubectl apply -f k8s/
 
 **Network isolation is real security** — two separate networks means even if nginx gets compromised, the attacker can't reach the database. The backend is the only bridge between networks.
 
-**ECR tokens expire** — 12 hours. Pods go into ImagePullBackOff when the token dies. In production on EKS this is handled automatically. On minikube you refresh the secret manually.
+Known Limitations
 
-**Minikube on cloud VMs has networking quirks** — NodePort binds to 127.0.0.1 by default, not 0.0.0.0. Docker Compose publishes to 0.0.0.0 by default. For a learning environment, Docker Compose on EC2 with ECR images is the most reliable deployment method.
+This is a learning project. Production gaps include:
 
-**`--no-cache-dir` in pip install** — pip saves downloaded package files inside the image. Useless dead weight since pip never runs again. The flag removes them before the layer freezes.
 
-**PGDATA subdirectory trick** — Kubernetes PersistentVolumes create a `lost+found` directory. PostgreSQL sees it and skips initialization. Setting `PGDATA=/var/lib/postgresql/data/pgdata` forces PostgreSQL to use a clean subdirectory.
+No TLS — HTTP only, no HTTPS/SSL termination
+Hardcoded secrets — Passwords in plain text in docker-compose.yml (use Docker secrets or external vault in production)
+No resource limits — No CPU/memory constraints on containers
+No Redis auth — Redis accepts connections without a password
+No connection pooling — Backend opens a new database connection per request
+No rate limiting — API endpoints have no request throttling
+Missing restart policies — Postgres, Redis, and Frontend lack restart: unless-stopped
+Single-host only — Bridge networking doesn't span multiple hosts (use Docker Swarm or Kubernetes for multi-host)
 
-## Cost
 
-- EC2 t2.medium: ~$0.0464/hour (~$1.11/day)
-- ECR storage: negligible for 3 small images
-- Stop EC2 when not using it — only pays for 20GB EBS storage (~$0.10/month)
 
-## What I'd do differently in production
+Built With
 
-- Use AWS EKS instead of minikube (proper networking, auto-scaling, managed control plane)
-- Use AWS RDS instead of PostgreSQL in a container (managed backups, failover)
-- Use Terraform to define all infrastructure as code
-- Store secrets in AWS Secrets Manager, not environment variables in YAML
-- Add HTTPS with a real domain and SSL certificate
-- Add monitoring with Prometheus + Grafana
-- Add GitHub webhooks to trigger Jenkins automatically on push
-- Use Helm charts instead of raw Kubernetes YAML files
+This project was built as a hands-on Docker Compose exercise covering:
+
+
+Multi-container orchestration with Docker Compose
+User-defined bridge networks for container isolation
+Health checks with dependency ordering (depends_on + condition: service_healthy)
+Named volumes for persistent database storage
+Reverse proxy pattern with Nginx
+Cache-aside pattern with Redis
+Environment variable-based configuration (12-Factor App)
+Automatic database initialization via docker-entrypoint-initdb.d

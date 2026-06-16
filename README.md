@@ -92,7 +92,7 @@ POST /api/send
 
 **Network isolation is real security** — two separate networks means even if nginx gets compromised, the attacker can't reach the database. The backend is the only bridge between networks.
 
-Known Limitations 
+Known Limitations
 
 This is a learning project. Production gaps include:
 
@@ -119,4 +119,3 @@ Health checks with dependency ordering (depends_on + condition: service_healthy)
 Named volumes for persistent database storage
 Reverse proxy pattern with Nginx
 Cache-aside pattern with Redis
-

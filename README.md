@@ -28,10 +28,6 @@ Two separate Docker networks. The database sits on the backend network only — 
 - **Frontend:** HTML, CSS, vanilla JavaScript
 - **Proxy:** Nginx (Alpine)
 - **Containers:** Docker, Docker Compose
-- **CI/CD:** Jenkins on AWS EC2
-- **Registry:** AWS ECR
-- **Orchestration:** Kubernetes (minikube for learning)
-- **Cloud:** AWS (EC2, ECR, IAM)
 
 ## Project structure
 

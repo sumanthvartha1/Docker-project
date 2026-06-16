@@ -37,7 +37,6 @@ Two separate Docker networks. The database sits on the backend network only — 
 
 ```
 mini-gpay/
-├── Jenkinsfile               # CI/CD pipeline definition
 ├── docker-compose.yml        # local development setup
 ├── backend/
 │   ├── Dockerfile
@@ -50,13 +49,8 @@ mini-gpay/
 │   ├── Dockerfile
 │   └── nginx.conf            # routing rules
 ├── postgres-init/
-│   └── init.sql              # creates tables + sample data
-└── k8s/
-    ├── postgres.yaml         # deployment + PVC + service
-    ├── redis.yaml            # deployment + service
-    ├── backend.yaml          # deployment + service (pulls from ECR)
-    ├── frontend.yaml         # deployment + service (pulls from ECR)
-    └── nginx.yaml            # deployment + LoadBalancer service
+   └── init.sql              # creates tables + sample data
+
 ```
 
 ## How to run locally
@@ -89,70 +83,6 @@ POST /api/send
     "receiver_id": 2,
     "amount": 500
 }
-```
-
-## CI/CD pipeline
-
-Jenkins runs on an EC2 instance. The pipeline has 5 stages:
-
-```
-git push → Jenkins triggers
-  │
-  ├── 1. Checkout     — pulls latest code from GitHub
-  ├── 2. Build        — docker build for backend, frontend, nginx
-  ├── 3. Login        — authenticates to AWS ECR
-  ├── 4. Push         — tags and pushes all 3 images to ECR
-  └── 5. Cleanup      — removes dangling images
-```
-
-Every build tags images with the Jenkins build number (`:1`, `:2`, `:3`) and `:latest`. Rollback is just pointing to an older tag.
-
-### Jenkins setup
-
-- EC2 instance: Ubuntu 22.04, t2.medium
-- Jenkins installed as systemd service on port 8080
-- Docker installed, Jenkins user added to docker group
-- AWS CLI configured with a dedicated `jenkins-ci` IAM user (ECR permissions only)
-- Plugins: Docker Pipeline, AWS Steps, Git
-
-### ECR repositories
-
-```
-gpay-backend    — Flask API image
-gpay-frontend   — static HTML image
-gpay-nginx      — nginx proxy image
-```
-
-PostgreSQL and Redis pull directly from Docker Hub — no ECR repos needed for official images.
-
-## Kubernetes deployment
-
-Deployed to minikube on the same EC2 instance. Five deployments, five services:
-
-| Service    | Type           | Image source | Notes                          |
-|------------|----------------|--------------|--------------------------------|
-| postgres   | ClusterIP      | Docker Hub   | PVC for data, ConfigMap for init.sql |
-| redis      | ClusterIP      | Docker Hub   | No persistent storage (cache)  |
-| backend    | ClusterIP      | ECR          | Connects to postgres and redis by service name |
-| frontend   | ClusterIP      | ECR          | Static HTML served by nginx    |
-| nginx      | LoadBalancer   | ECR          | Single entry point             |
-
-ECR authentication handled via `kubectl create secret docker-registry`. Token refreshed every 12 hours (ECR limitation — EKS handles this automatically in production).
-
-### Deploy to Kubernetes
-
-```bash
-# create ECR secret
-TOKEN=$(aws ecr get-login-password --region ap-south-2)
-kubectl create secret docker-registry ecr-secret \
-  --docker-server=ACCOUNT_ID.dkr.ecr.ap-south-2.amazonaws.com \
-  --docker-username=AWS \
-  --docker-password=$TOKEN
-
-# deploy everything
-kubectl apply -f k8s/
-```
-
 ## Things I learned building this
 
 **Docker networking** — containers are isolated by default. Putting them on the same network lets them find each other by service name through Docker's built-in DNS. IP addresses change on restart, names don't.
@@ -165,7 +95,7 @@ kubectl apply -f k8s/
 
 **Network isolation is real security** — two separate networks means even if nginx gets compromised, the attacker can't reach the database. The backend is the only bridge between networks.
 
-Known Limitations
+Known Limitations 
 
 This is a learning project. Production gaps include:
 

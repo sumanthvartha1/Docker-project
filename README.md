@@ -92,30 +92,3 @@ POST /api/send
 
 **Network isolation is real security** — two separate networks means even if nginx gets compromised, the attacker can't reach the database. The backend is the only bridge between networks.
 
-Known Limitations
-
-This is a learning project. Production gaps include:
-
-
-No TLS — HTTP only, no HTTPS/SSL termination
-Hardcoded secrets — Passwords in plain text in docker-compose.yml (use Docker secrets or external vault in production)
-No resource limits — No CPU/memory constraints on containers
-No Redis auth — Redis accepts connections without a password
-No connection pooling — Backend opens a new database connection per request
-No rate limiting — API endpoints have no request throttling
-Missing restart policies — Postgres, Redis, and Frontend lack restart: unless-stopped
-Single-host only — Bridge networking doesn't span multiple hosts (use Docker Swarm or Kubernetes for multi-host)
-
-
-
-Built With
-
-This project was built as a hands-on Docker Compose exercise covering:
-
-
-Multi-container orchestration with Docker Compose
-User-defined bridge networks for container isolation
-Health checks with dependency ordering (depends_on + condition: service_healthy)
-Named volumes for persistent database storage
-Reverse proxy pattern with Nginx
-Cache-aside pattern with Redis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          

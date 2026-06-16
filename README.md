@@ -80,17 +80,18 @@ POST /api/send
     "amount": 500
 }
 
-## Things I learned building this
+Things I Learned Building This
 
-**Docker networking** — containers are isolated by default. Putting them on the same network lets them find each other by service name through Docker's built-in DNS. IP addresses change on restart, names don't.
+Docker networking — containers are isolated by default. Putting them on the same network lets them find each other by service name through Docker's built-in DNS. IP addresses change on restart, names don't.
 
-**Layer caching matters** — copying requirements.txt before the code means pip install gets cached. Changed one line in app.py? Build goes from 3 minutes to 8 seconds. Across 20 deploys a day that adds up fast.
+Layer caching matters — copying requirements.txt before the code means pip install gets cached. Changed one line in app.py? Build goes from 3 minutes to 8 seconds. Across 20 deploys a day that adds up fast.
 
-**Volumes vs bind mounts** — named volumes for database persistence (Docker manages the storage), bind mounts for development (edit code locally, container sees changes instantly).
+Volumes vs bind mounts — named volumes for database persistence (Docker manages the storage), bind mounts for development (edit code locally, container sees changes instantly).
 
-**Health checks prevent race conditions** — without them, the backend starts before PostgreSQL is ready and crashes with "connection refused." With `condition: service_healthy`, the backend waits until pg_isready passes.
+Health checks prevent race conditions — without them, the backend starts before PostgreSQL is ready and crashes with "connection refused." With condition: service_healthy, the backend waits until pg_isready passes.
 
-**Network isolation is real security** — two separate networks means even if nginx gets compromised, the attacker can't reach the database. The backend is the only bridge between networks.
+Network isolation is real security — two separate networks means even if nginx gets compromised, the attacker can't reach the database. The backend is the only bridge between networks.
+
 
 Known Limitations
 
@@ -118,4 +119,4 @@ User-defined bridge networks for container isolation
 Health checks with dependency ordering (depends_on + condition: service_healthy)
 Named volumes for persistent database storage
 Reverse proxy pattern with Nginx
-Cache-aside pattern with Redis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+Cache-aside pattern with Redis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
